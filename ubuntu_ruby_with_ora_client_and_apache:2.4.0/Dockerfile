@@ -1,3 +1,9 @@
+#Set the base image
+FROM ruby:2.4.0
+
+# Dockerfile author / maintainer
+MAINTAINER Syed Mehndi <hulk.syed07@gmail.com>
+
 # Install essentials packages
 RUN apt-get update -qq && \
     apt-get autoremove -y && \
