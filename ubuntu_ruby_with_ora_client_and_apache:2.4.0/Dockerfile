@@ -42,3 +42,8 @@ RUN apt-get install -y apache2 && \
     apt-get install -y libapache2-mod-passenger && \
     a2enmod passenger && \
     apt-get install nano
+
+# To use your own site add your own passenger conf for your app at /etc/apache2/sites-available/xyz_my_app.conf
+# a2dissite 000-default && \
+# a2ensite xyz_my_app
+# Add apache restart command in a file startup.sh and add this as an ENTRYPOINT
