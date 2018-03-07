@@ -22,8 +22,9 @@ RUN bundle install
 ADD . /xyz_my_app
 
 #Setting passenger conf for the app
-RUN cp /xyz_my_app/000-default.conf /etc/apache2/sites-available/000-default.conf && \
-    cp /xyz_my_app/passenger_conf_for_app.conf /etc/apache2/sites-available/xyz_my_app.conf && \
+# RUN cp /xyz_my_app/000-default.conf /etc/apache2/sites-available/000-default.conf
+
+RUN cp /xyz_my_app/passenger_conf_for_app.conf /etc/apache2/sites-available/xyz_my_app.conf && \
     a2dissite 000-default && \
     a2ensite xyz_my_app
 
