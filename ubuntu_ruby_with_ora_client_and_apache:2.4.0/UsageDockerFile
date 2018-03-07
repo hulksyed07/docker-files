@@ -1,0 +1,37 @@
+# Set base image
+FROM ubuntu_ruby_with_ora_client_and_apache:2.4.0
+
+# Update any package & remove outdated one
+RUN apt-get update -qq && \
+    apt-get autoremove -y
+
+# create project directory
+RUN mkdir /xyz_my_app
+
+# Switch to project directory
+WORKDIR /xyz_my_app
+
+# Add gemfile and gemfile.lock
+ADD Gemfile /xyz_my_app/Gemfile
+ADD Gemfile.lock /xyz_my_app/Gemfile.lock
+
+#installing all the Gems listed in Gemfile
+RUN bundle install
+
+# Add project code in current directory
+ADD . /xyz_my_app
+
+#Setting passenger conf for the app
+RUN cp /xyz_my_app/000-default.conf /etc/apache2/sites-available/000-default.conf && \
+    cp /xyz_my_app/passenger_conf_for_app.conf /etc/apache2/sites-available/xyz_my_app.conf && \
+    a2dissite 000-default && \
+    a2ensite xyz_my_app
+
+ENV DB_ORACLE_USERNAME=my_username  \
+    DB_ORACLE_PASSWORD=my_password  \
+    DB_ORACLE_DATABASE=host_name:port/service_name  \
+    SECRET_KEY_BASE=1232ed
+
+RUN chmod +x ./startup.sh
+
+ENTRYPOINT ["/xyz_my_app/startup.sh"]
