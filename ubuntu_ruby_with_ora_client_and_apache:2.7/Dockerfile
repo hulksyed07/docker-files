@@ -54,6 +54,12 @@ RUN bundle config --global path "$GEM_HOME"  && \
 # don't create ".bundle" in all our apps
 ENV BUNDLE_APP_CONFIG $GEM_HOME
 
+# # Post using bundler 2.1.4 gems are getting installed in 2 locations /usr/local/bundle/gems, /usr/local/bundle/ruby/2.6.0/gems
+# and github master repo obtained gems are stored at /usr/local/bundle/ruby/2.6.0/bundler/gems
+# ENV GEM_PATH=/usr/local/bundle/ruby/2.6.0:/usr/local/bundle/ruby/2.6.0/bundler
+
+# RUN bundle install --path 'vendor/bundle'
+
 # Install apache with passenger
 RUN apt-get install -y dirmngr gnupg && \
     apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 561F9B9CAC40B2F7 && \
