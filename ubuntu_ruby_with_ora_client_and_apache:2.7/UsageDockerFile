@@ -1,0 +1,55 @@
+# Set base image
+FROM ubuntu_ruby_with_ora_client_and_apache:2.7
+
+# Update any package & remove outdated one
+RUN apt-get update -qq && \
+    apt-get autoremove -y
+
+# Adding Product.yml file as per infrastructure requirement
+COPY product.yml /
+
+# Creating a user named xyz_my_app
+RUN useradd -ms /bin/bash xyz_my_app
+
+# create project directory
+RUN mkdir /home/xyz_my_app
+
+# Installing essential libraries
+RUN apt install -y build-essential patch ruby-dev zlib1g-dev liblzma-dev
+
+# Giving owner permission to apache files to xyz_my_app user
+# Giving write permissions
+RUN chown -R xyz_my_app: /var/log/apache2 /etc/apache2 /var/lib/apache2 /var/run/apache2 /usr/sbin /usr/local/bin/bundle /home/xyz_my_app && \
+    chmod -R u+rwx /var/log/apache2 /etc/apache2 /var/lib/apache2 /var/run/apache2 /usr/sbin /usr/local/bin/bundle /home/xyz_my_app
+
+# Switch to project directory
+WORKDIR /home/xyz_my_app
+
+# Add gemfile and gemfile.lock
+ADD Gemfile /home/xyz_my_app/Gemfile
+ADD Gemfile.lock /home/xyz_my_app/Gemfile.lock
+
+#installing all the Gems listed in Gemfile
+RUN bundle config set path 'vendor/bundle'
+RUN bundle install
+# RUN bundler update --bundler
+# RUN bundle install
+
+RUN chown -R xyz_my_app: /usr/local/bundle && \
+    chmod -R u+rwx /usr/local/bundle
+
+# Redirecting log to container stdout for external monitoring
+RUN ln -sf /dev/stdout /var/log/apache2/access.log && \
+  ln -sf /dev/stderr /var/log/apache2/error.log
+
+# RUN ln -sf /dev/stdout /xyz_my_app/log/development.log && \
+#   ln -sf /dev/stdout /xyz_my_app/log/sandbox.log && \
+#   ln -sf /dev/stdout /xyz_my_app/log/integration.log && \
+#   ln -sf /dev/stdout /xyz_my_app/log/qa.log && \
+#   ln -sf /dev/stdout /xyz_my_app/log/production.log
+
+#Setting passenger conf for the app
+# RUN cp /xyz_my_app/000-default.conf /etc/apache2/sites-available/000-default.conf && \
+#     cp /xyz_my_app/passenger_conf_for_app.conf /etc/apache2/sites-available/xyz_my_app.conf && \
+#     a2dissite 000-default && \
+#     a2ensite xyz_my_app
